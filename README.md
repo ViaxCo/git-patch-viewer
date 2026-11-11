@@ -2,6 +2,10 @@
 
 A client-side git patch and diff viewer with word-level highlights and theming. View, share, and manage git patches entirely in your browser with no backend required.
 
+**Live:** https://viaxco.github.io/git-patch-viewer/
+
+Forked from [sevsunday/git-patch-viewer](https://github.com/sevsunday/git-patch-viewer).
+
 **Key Features:**
 - 20 themes with independent dark/light modes
 - Unified and side-by-side views with word-level highlights and wrapped lines
