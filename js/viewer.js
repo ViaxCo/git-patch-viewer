@@ -460,11 +460,6 @@ const Viewer = (() => {
       hideLoading();
       showToast('Patch loaded successfully', 'success');
       
-      // Prompt to save if this is a new patch
-      if (!currentSavedPatchId) {
-        promptToSavePatch();
-      }
-      
       // Update save button state
       updateSaveButtonState();
     } catch (error) {
@@ -1056,6 +1051,7 @@ const Viewer = (() => {
     currentPatch = null;
     currentSavedPatchId = null;
     currentSelectedFile = null;
+    updateSaveButtonState();
   }
 
   function showViewerSection() {
@@ -1420,45 +1416,6 @@ const Viewer = (() => {
     // NOTE: Backdrop click is intentionally disabled to force user choice
   }
 
-  function promptToSavePatch() {
-    // Show modal with options to save or don't save
-    const modal = document.getElementById('save-prompt-modal');
-    if (!modal) return;
-
-    modal.classList.remove('hidden');
-
-    // Save button
-    const saveBtn = document.getElementById('save-patch-confirm-btn');
-    const skipBtn = document.getElementById('save-patch-skip-btn');
-    const closeBtn = document.getElementById('save-prompt-close-btn');
-
-    // Handler for saving
-    const handleSave = () => {
-      savePatchToStorage();
-      modal.classList.add('hidden');
-      // Remove event listeners
-      saveBtn.removeEventListener('click', handleSave);
-      skipBtn.removeEventListener('click', handleSkip);
-      closeBtn.removeEventListener('click', handleSkip);
-    };
-
-    // Handler for skipping/closing
-    const handleSkip = () => {
-      modal.classList.add('hidden');
-      // Remove event listeners
-      saveBtn.removeEventListener('click', handleSave);
-      skipBtn.removeEventListener('click', handleSkip);
-      closeBtn.removeEventListener('click', handleSkip);
-    };
-
-    // Add event listeners
-    saveBtn.addEventListener('click', handleSave);
-    skipBtn.addEventListener('click', handleSkip);
-    closeBtn.addEventListener('click', handleSkip);
-
-    // Note: Backdrop click is intentionally not handled to force user choice
-  }
-
   function updateSaveButtonState() {
     const savedBtn = document.getElementById('saved-btn');
     if (!savedBtn) return;
@@ -1475,7 +1432,7 @@ const Viewer = (() => {
       // Patch is not saved - show outline icon
       savedBtn.classList.remove('saved');
       svg.setAttribute('fill', 'none');
-      savedBtn.setAttribute('title', 'View saved patches');
+      savedBtn.setAttribute('title', currentPatch ? 'Save this patch' : 'View saved patches');
     }
   }
 
