@@ -295,38 +295,7 @@ window.ReactDiffAdapter = (() => {
    * @returns {boolean} True if available
    */
   function isAvailable() {
-    console.log('🔍 isAvailable() called');
-    const hasReact = !!(window.React && window.ReactDOM);
-    
-    // Check if ReactDiffViewer exists and is properly loaded
-    let hasReactDiffViewer = false;
-    if (window.ReactDiffViewer) {
-      // It's a module with .default export
-      try {
-        // Try to access the default export
-        const defaultExport = window.ReactDiffViewer.default;
-        hasReactDiffViewer = !!(defaultExport && typeof defaultExport === 'function');
-        if (!hasReactDiffViewer) {
-          console.warn('ReactDiffViewer.default is not a function:', typeof defaultExport, defaultExport);
-        }
-      } catch (e) {
-        console.warn('Error accessing ReactDiffViewer.default:', e);
-      }
-    }
-    
-    if (!hasReact) {
-      console.warn('React or ReactDOM not loaded');
-    }
-    if (!hasReactDiffViewer) {
-      console.warn('ReactDiffViewer check failed:', {
-        hasReact,
-        hasWindow: !!window.ReactDiffViewer,
-        reactDiffViewerKeys: window.ReactDiffViewer ? Object.keys(window.ReactDiffViewer) : [],
-        defaultExists: window.ReactDiffViewer ? !!window.ReactDiffViewer.default : false
-      });
-    }
-    
-    return hasReact && hasReactDiffViewer;
+    return !!(window.React && window.ReactDOM && typeof window.ReactDiffViewer?.default === 'function');
   }
 
   // Public API

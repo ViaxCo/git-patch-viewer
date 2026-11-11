@@ -574,12 +574,7 @@ const Viewer = (() => {
     const diffContainer = document.getElementById('diff-container');
     if (!diffContainer) return;
 
-    // Check if ReactDiffAdapter is available
-    console.log('🔍 Checking ReactDiffAdapter:', {
-      exists: !!window.ReactDiffAdapter,
-      isAvailable: window.ReactDiffAdapter ? window.ReactDiffAdapter.isAvailable() : 'N/A'
-    });
-    if (!window.ReactDiffAdapter || !window.ReactDiffAdapter.isAvailable()) {
+    if (!window.ReactDiffAdapter?.isAvailable()) {
       // Check if React viewer is still loading
       if (window.reactDiffViewerLoading) {
         diffContainer.innerHTML = `
