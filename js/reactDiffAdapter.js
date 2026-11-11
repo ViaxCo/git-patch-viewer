@@ -111,6 +111,10 @@ window.ReactDiffAdapter = (() => {
         fontSize: '14px',
         fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace'
       },
+      wordDiff: {
+        display: 'inline',
+        padding: 0
+      },
       titleBlock: {
         background: getCSSVar('--bg-secondary') || (isDarkMode ? '#2c2f3a' : '#f7f7f7'),
         padding: '10px',
@@ -203,7 +207,7 @@ window.ReactDiffAdapter = (() => {
       splitView: splitView,
       useDarkTheme: isDarkMode,
       styles: styles,
-      compareMethod: 'diffLines',
+      compareMethod: 'diffWordsWithSpace',
       showDiffOnly: false,
       renderContent: renderContent,
       leftTitle: file.oldPath || 'Original',
