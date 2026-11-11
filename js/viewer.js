@@ -438,6 +438,7 @@ const Viewer = (() => {
       // Continue with normal rendering
       currentPatch = parsedPatch;
       currentSelectedFile = null; // Reset selected file for React viewer
+      folderStates = {};
 
       // Show viewer section
       showViewerSection();
@@ -448,14 +449,8 @@ const Viewer = (() => {
       renderDiff(parsedPatch.raw);
       renderFileTree(parsedPatch.files);
 
-      // Handle permalink if in URL
-      const file = URLHandler.getFileFromURL();
-      const line = URLHandler.getLineFromURL();
-      if (file && line) {
-        setTimeout(() => navigateToFileLine(file, line), 500);
-      } else if (file) {
-        setTimeout(() => navigateToFile(file), 500);
-      }
+      const firstFile = document.querySelector('.file-tree-item')?.dataset.file;
+      navigateToFile(URLHandler.getFileFromURL() || firstFile);
 
       hideLoading();
       showToast('Patch loaded successfully', 'success');
@@ -1009,11 +1004,6 @@ const Viewer = (() => {
         }
       }
     }
-  }
-
-  function navigateToFileLine(filePath, lineNumber) {
-    navigateToFile(filePath);
-    // Additional line navigation could be implemented here
   }
 
   function navigateToNextFile() {
