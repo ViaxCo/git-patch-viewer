@@ -27,7 +27,7 @@ const PatchParser = (() => {
     };
 
     // Parse files
-    result.files = parseFiles(lines);
+    result.files = parseFiles(patchText);
     
     // Calculate statistics
     result.stats = calculateStats(result.files);
@@ -110,114 +110,29 @@ const PatchParser = (() => {
     return metadata;
   }
 
-  /**
-   * Parse files from the patch
-   * @param {Array<string>} lines - Patch lines
-   * @returns {Array<Object>} Array of file objects
-   */
-  function parseFiles(lines) {
-    const files = [];
-    let currentFile = null;
-    let currentHunk = null;
-    let i = 0;
+  const LINE_TYPES = { insert: 'add', delete: 'del', context: 'context' };
 
-    while (i < lines.length) {
-      const line = lines[i];
+  function getFileType(file) {
+    if (file.isNew || file.oldName === '/dev/null') return 'added';
+    if (file.isDeleted || file.newName === '/dev/null') return 'deleted';
+    if (file.isRename || file.oldName !== file.newName) return 'renamed';
+    return 'modified';
+  }
 
-      // File header (diff --git)
-      if (line.startsWith('diff --git ')) {
-        // Save previous file
-        if (currentFile) {
-          if (currentHunk) {
-            currentFile.hunks.push(currentHunk);
-            currentHunk = null;
-          }
-          files.push(currentFile);
-        }
-
-        // Start new file
-        const match = line.match(/diff --git a\/(.+?) b\/(.+)/);
-        if (match) {
-          currentFile = {
-            oldPath: match[1],
-            newPath: match[2],
-            type: 'modified',
-            hunks: [],
-            additions: 0,
-            deletions: 0,
-            isBinary: false,
-          };
-        }
-      }
-
-      // New file mode
-      if (line.startsWith('new file mode') && currentFile) {
-        currentFile.type = 'added';
-        currentFile.oldPath = '/dev/null';
-      }
-
-      // Deleted file mode
-      if (line.startsWith('deleted file mode') && currentFile) {
-        currentFile.type = 'deleted';
-        currentFile.newPath = '/dev/null';
-      }
-
-      // Renamed file
-      if (line.startsWith('rename from') && currentFile) {
-        currentFile.type = 'renamed';
-      }
-
-      // Binary files
-      if (line.match(/^Binary files .* differ/) && currentFile) {
-        currentFile.isBinary = true;
-      }
-
-      // Hunk header (@@ -X,Y +A,B @@)
-      if (line.startsWith('@@') && currentFile) {
-        // Save previous hunk
-        if (currentHunk) {
-          currentFile.hunks.push(currentHunk);
-        }
-
-        // Parse hunk header
-        const match = line.match(/@@ -(\d+),?(\d*) \+(\d+),?(\d*) @@(.*)/);
-        if (match) {
-          currentHunk = {
-            oldStart: parseInt(match[1]),
-            oldLines: match[2] ? parseInt(match[2]) : 1,
-            newStart: parseInt(match[3]),
-            newLines: match[4] ? parseInt(match[4]) : 1,
-            heading: match[5].trim(),
-            lines: [],
-          };
-        }
-      }
-
-      // Hunk content lines
-      if (currentHunk && currentFile && !currentFile.isBinary) {
-        if (line.startsWith('+') && !line.startsWith('+++')) {
-          currentHunk.lines.push({ type: 'add', content: line.substring(1) });
-          currentFile.additions++;
-        } else if (line.startsWith('-') && !line.startsWith('---')) {
-          currentHunk.lines.push({ type: 'del', content: line.substring(1) });
-          currentFile.deletions++;
-        } else if (line.startsWith(' ') && currentHunk.lines.length > 0) {
-          currentHunk.lines.push({ type: 'context', content: line.substring(1) });
-        }
-      }
-
-      i++;
-    }
-
-    // Save last file
-    if (currentFile) {
-      if (currentHunk) {
-        currentFile.hunks.push(currentHunk);
-      }
-      files.push(currentFile);
-    }
-
-    return files;
+  function parseFiles(patchText) {
+    return Diff2Html.parse(patchText).map(file => ({
+      oldPath: file.oldName,
+      newPath: file.newName,
+      type: getFileType(file),
+      hunks: file.blocks.map(block => ({
+        lines: block.lines.map(line => ({
+          type: LINE_TYPES[line.type],
+          content: line.content.substring(1),
+        })),
+      })),
+      additions: file.addedLines,
+      deletions: file.deletedLines,
+    }));
   }
 
   /**
