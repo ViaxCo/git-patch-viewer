@@ -232,7 +232,7 @@ window.ReactDiffAdapter = (() => {
         <div style="padding: 20px; text-align: center; color: var(--text-secondary);">
           <p>Failed to load React Diff Viewer</p>
           <p style="font-size: 12px; margin-top: 10px;">Error: ${error.message}</p>
-          <p style="font-size: 12px; margin-top: 10px;">Please try switching to Classic viewer or refresh the page.</p>
+          <p style="font-size: 12px; margin-top: 10px;">Please refresh the page.</p>
         </div>
       `;
     }

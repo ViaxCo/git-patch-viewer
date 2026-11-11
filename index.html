@@ -12,8 +12,6 @@
   <meta property="og:type" content="website">
   
   <!-- CDN Dependencies -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/diff2html/bundles/css/diff2html.min.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1/themes/prism-tomorrow.css">
   
   <!-- Custom Styles -->
   <link rel="stylesheet" href="./css/themes.css">
@@ -212,22 +210,6 @@
         <div class="diff-wrapper">
           <div class="diff-controls">
             <div class="view-toggle">
-              <button id="modern-viewer-btn" class="view-btn active" title="Modern viewer (react-diff-viewer)">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <path d="M12 6v6l4 2"></path>
-                </svg>
-                Modern
-              </button>
-              <button id="classic-viewer-btn" class="view-btn" title="Classic viewer (diff2html)">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
-                  <path d="M9 9h6M9 12h6M9 15h6"></path>
-                </svg>
-                Classic
-              </button>
-            </div>
-            <div class="view-toggle">
               <button id="unified-btn" class="view-btn" title="Unified view">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <line x1="21" y1="10" x2="3" y2="10"></line>
@@ -247,8 +229,6 @@
             </div>
             <div class="diff-actions">
               <!-- Show Metadata button will be dynamically inserted here when collapsed -->
-              <button id="expand-all-files" class="btn-ghost" title="Expand all files">Expand All</button>
-              <button id="collapse-all-files" class="btn-ghost" title="Collapse all files">Collapse All</button>
               <button id="copy-all-btn" class="btn-ghost" title="Copy entire patch">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
@@ -265,7 +245,7 @@
             </div>
           </div>
           <div id="diff-container" class="diff-container">
-            <!-- Populated by diff2html -->
+            <!-- Populated by JS -->
           </div>
         </div>
       </div>
@@ -479,23 +459,7 @@
   </div>
   
   <!-- Scripts -->
-  <script src="https://cdn.jsdelivr.net/npm/diff2html/bundles/js/diff2html-ui.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/diff2html/bundles/js/diff2html.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/prism.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-javascript.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-typescript.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-python.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-java.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-go.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-rust.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-c.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-cpp.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-css.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-markup.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-json.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-yaml.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-markdown.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-bash.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/pako@2/dist/pako.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/lz-string@1.5.0/libs/lz-string.min.js"></script>
   

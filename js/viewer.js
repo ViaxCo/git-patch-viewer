@@ -7,7 +7,6 @@ const Viewer = (() => {
   // State
   let currentPatch = null;
   let currentView = 'side-by-side'; // 'unified' or 'side-by-side'
-  let currentViewerType = 'modern'; // 'modern' (react-diff-viewer) or 'classic' (diff2html)
   let currentSelectedFile = null; // Currently selected file for react viewer
   let currentSavedPatchId = null; // Track if current patch is saved
   let filesViewMode = 'flat'; // 'flat' or 'tree'
@@ -27,12 +26,6 @@ const Viewer = (() => {
     const savedView = localStorage.getItem('git-patch-viewer-view');
     if (savedView) {
       currentView = savedView;
-    }
-
-    // Load saved viewer type preference (default to 'modern')
-    const savedViewerType = localStorage.getItem('git-patch-viewer-viewer-type');
-    if (savedViewerType) {
-      currentViewerType = savedViewerType;
     }
 
     // Load saved files view mode
@@ -68,8 +61,8 @@ const Viewer = (() => {
     if (typeof ThemeManager !== 'undefined' && ThemeManager.onThemeChange) {
       ThemeManager.onThemeChange(() => {
         // Re-render if using React viewer and a file is selected
-        if (currentViewerType === 'modern' && currentSelectedFile) {
-          renderWithReactDiffViewer();
+        if (currentSelectedFile) {
+          renderDiff();
         }
       });
     }
@@ -142,17 +135,6 @@ const Viewer = (() => {
    * Set up viewer section event listeners
    */
   function setupViewerListeners() {
-    // Viewer type toggle buttons
-    const modernViewerBtn = document.getElementById('modern-viewer-btn');
-    const classicViewerBtn = document.getElementById('classic-viewer-btn');
-
-    if (modernViewerBtn) {
-      modernViewerBtn.addEventListener('click', () => setViewerType('modern'));
-    }
-    if (classicViewerBtn) {
-      classicViewerBtn.addEventListener('click', () => setViewerType('classic'));
-    }
-
     // View toggle buttons
     const unifiedBtn = document.getElementById('unified-btn');
     const sideBySideBtn = document.getElementById('sidebyside-btn');
@@ -163,27 +145,6 @@ const Viewer = (() => {
     if (sideBySideBtn) {
       sideBySideBtn.addEventListener('click', () => setView('side-by-side'));
     }
-
-    // Expand/collapse all files
-    document.getElementById('expand-all-files')?.addEventListener('click', () => {
-      // Click all checked "viewed" checkboxes to expand files
-      const checkboxes = document.querySelectorAll('.d2h-file-collapse input[type="checkbox"]');
-      checkboxes.forEach(checkbox => {
-        if (checkbox.checked) {
-          checkbox.click();
-        }
-      });
-    });
-
-    document.getElementById('collapse-all-files')?.addEventListener('click', () => {
-      // Click all unchecked "viewed" checkboxes to collapse files
-      const checkboxes = document.querySelectorAll('.d2h-file-collapse input[type="checkbox"]');
-      checkboxes.forEach(checkbox => {
-        if (!checkbox.checked) {
-          checkbox.click();
-        }
-      });
-    });
 
     // Copy all button
     document.getElementById('copy-all-btn')?.addEventListener('click', handleCopyAll);
@@ -446,7 +407,7 @@ const Viewer = (() => {
       // Render everything
       renderMetadata(parsedPatch.metadata);
       renderStatistics(parsedPatch.stats);
-      renderDiff(parsedPatch.raw);
+      renderDiff();
       renderFileTree(parsedPatch.files);
 
       const firstFile = document.querySelector('.file-tree-item')?.dataset.file;
@@ -609,53 +570,7 @@ const Viewer = (() => {
     deletionsValue.textContent = stats.deletions;
   }
 
-  function renderDiff(patchText) {
-    const diffContainer = document.getElementById('diff-container');
-    if (!diffContainer) return;
-
-    // Route to appropriate renderer based on viewer type
-    if (currentViewerType === 'modern') {
-      renderWithReactDiffViewer();
-    } else {
-      renderWithDiff2Html(patchText);
-    }
-  }
-
-  function renderWithDiff2Html(patchText) {
-    const diffContainer = document.getElementById('diff-container');
-    if (!diffContainer) return;
-
-    try {
-      // Get current mode from ThemeManager
-      const currentMode = typeof ThemeManager !== 'undefined' 
-        ? ThemeManager.getCurrentMode() 
-        : 'dark';
-
-      // Use diff2html to render
-      const configuration = {
-        drawFileList: false,
-        matching: 'lines',
-        outputFormat: currentView === 'unified' ? 'line-by-line' : 'side-by-side',
-        highlight: true,
-        colorScheme: currentMode, // 'dark' or 'light'
-      };
-
-      const diff2htmlUi = new Diff2HtmlUI(diffContainer, patchText, configuration);
-      diff2htmlUi.draw();
-
-      // Apply syntax highlighting with Prism
-      setTimeout(() => {
-        Prism.highlightAllUnder(diffContainer);
-      }, 100);
-
-    } catch (error) {
-      console.error('Diff render error:', error);
-      // Fallback to raw text
-      diffContainer.innerHTML = `<pre style="padding: 1rem; overflow: auto;">${escapeHtml(patchText)}</pre>`;
-    }
-  }
-
-  function renderWithReactDiffViewer() {
+  function renderDiff() {
     const diffContainer = document.getElementById('diff-container');
     if (!diffContainer) return;
 
@@ -669,13 +584,13 @@ const Viewer = (() => {
       if (window.reactDiffViewerLoading) {
         diffContainer.innerHTML = `
           <div style="padding: 20px; text-align: center; color: var(--text-secondary);">
-            <p>Loading Modern Viewer...</p>
+            <p>Loading viewer...</p>
             <p style="font-size: 12px; margin-top: 10px;">Please wait a moment...</p>
           </div>
         `;
         // Wait for it to load and try again
         window.addEventListener('reactDiffViewerLoaded', () => {
-          renderWithReactDiffViewer();
+          renderDiff();
         }, { once: true });
         return;
       }
@@ -683,8 +598,8 @@ const Viewer = (() => {
       console.error('ReactDiffAdapter not available');
       diffContainer.innerHTML = `
         <div style="padding: 20px; text-align: center; color: var(--text-secondary);">
-          <p>React Diff Viewer is not available</p>
-          <p style="font-size: 12px; margin-top: 10px;">Please switch to Classic viewer or refresh the page.</p>
+          <p>The diff viewer is not available</p>
+          <p style="font-size: 12px; margin-top: 10px;">Please refresh the page.</p>
         </div>
       `;
       return;
@@ -976,33 +891,14 @@ const Viewer = (() => {
       item.classList.toggle('active', item.dataset.file === filePath);
     });
 
-    // Different behavior based on viewer type
-    if (currentViewerType === 'modern') {
-      // For modern viewer, find and render the specific file
-      if (currentPatch && currentPatch.files) {
-        const file = currentPatch.files.find(f => {
-          const path = f.newPath !== '/dev/null' ? f.newPath : f.oldPath;
-          return path === filePath;
-        });
-        
-        if (file) {
-          currentSelectedFile = file;
-          renderWithReactDiffViewer();
-        }
-      }
-    } else {
-      // For classic viewer, scroll to the file header
-      const fileHeaders = document.querySelectorAll('.d2h-file-header');
-      
-      for (const header of fileHeaders) {
-        const fileNameSpan = header.querySelector('.d2h-file-name');
-        if (fileNameSpan && fileNameSpan.textContent.includes(filePath)) {
-          header.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          header.classList.add('highlight');
-          setTimeout(() => header.classList.remove('highlight'), 1000);
-          break;
-        }
-      }
+    const file = currentPatch?.files.find(f => {
+      const path = f.newPath !== '/dev/null' ? f.newPath : f.oldPath;
+      return path === filePath;
+    });
+
+    if (file) {
+      currentSelectedFile = file;
+      renderDiff();
     }
   }
 
@@ -1050,10 +946,6 @@ const Viewer = (() => {
     document.getElementById('new-patch-btn')?.classList.remove('hidden');
     document.getElementById('share-btn')?.classList.remove('hidden');
 
-    // Update viewer type button states
-    document.getElementById('modern-viewer-btn')?.classList.toggle('active', currentViewerType === 'modern');
-    document.getElementById('classic-viewer-btn')?.classList.toggle('active', currentViewerType === 'classic');
-
     // Update view button states
     document.getElementById('unified-btn')?.classList.toggle('active', currentView === 'unified');
     document.getElementById('sidebyside-btn')?.classList.toggle('active', currentView === 'side-by-side');
@@ -1070,33 +962,7 @@ const Viewer = (() => {
 
     // Re-render diff if patch loaded
     if (currentPatch) {
-      renderDiff(currentPatch.raw);
-    }
-  }
-
-  function setViewerType(viewerType) {
-    // Remember which file was selected before switching
-    const activeFileItem = document.querySelector('.file-tree-item.active');
-    const selectedFilePath = activeFileItem?.dataset?.file;
-
-    currentViewerType = viewerType;
-    localStorage.setItem('git-patch-viewer-viewer-type', viewerType);
-
-    // Update button states
-    document.getElementById('modern-viewer-btn')?.classList.toggle('active', viewerType === 'modern');
-    document.getElementById('classic-viewer-btn')?.classList.toggle('active', viewerType === 'classic');
-
-    // Re-render diff if patch loaded
-    if (currentPatch) {
-      renderDiff(currentPatch.raw);
-      
-      // Restore the selected file after switching viewers
-      if (selectedFilePath) {
-        // Use setTimeout to ensure the new viewer has fully rendered
-        setTimeout(() => {
-          navigateToFile(selectedFilePath);
-        }, 100);
-      }
+      renderDiff();
     }
   }
 
@@ -1584,7 +1450,7 @@ const Viewer = (() => {
    */
   function reRenderDiff() {
     if (currentPatch) {
-      renderDiff(currentPatch.raw);
+      renderDiff();
     }
   }
 

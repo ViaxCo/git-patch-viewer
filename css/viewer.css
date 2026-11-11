@@ -1097,66 +1097,6 @@ kbd {
 }
 
 /* ============================================
-   DIFF2HTML INTEGRATION
-   ============================================ */
-
-/* Let diff2html use its default styles */
-
-/* ============================================
-   CUSTOM DIFF2HTML STYLES
-   Add your custom styles below this line
-   ============================================ */
-
-/* Match diff2html backgrounds to theme */
-.d2h-wrapper {
-  background-color: var(--bg-primary) !important;
-}
-
-.d2h-file-wrapper {
-  background-color: var(--bg-secondary) !important;
-  margin-bottom: 1.5rem !important;
-  border-radius: 8px !important;
-  border: 1px solid var(--border-color) !important;
-  overflow: hidden !important;
-}
-
-.d2h-file-header {
-  background-color: var(--bg-secondary) !important;
-  border-bottom: 1px solid var(--border-color) !important;
-  border-radius: 8px 8px 0 0 !important;
-}
-
-.d2h-diff-table {
-  background-color: var(--bg-primary) !important;
-}
-
-.d2h-code-side-linenumber,
-.d2h-code-linenumber {
-  background-color: var(--bg-tertiary) !important;
-  border-color: var(--border-color) !important;
-  position: static !important;
-}
-
-/* Ensure all diff2html table elements scroll together */
-.d2h-wrapper table,
-.d2h-wrapper thead,
-.d2h-wrapper tbody,
-.d2h-wrapper tr,
-.d2h-wrapper th,
-.d2h-wrapper td {
-  position: static !important;
-}
-
-.d2h-emptyplaceholder {
-  background-color: var(--bg-secondary) !important;
-}
-
-/* File list background if shown */
-.d2h-file-list-wrapper {
-  background-color: var(--bg-secondary) !important;
-}
-
-/* ============================================
    SAVED SIDEBAR
    ============================================ */
 .saved-sidebar {
@@ -1624,26 +1564,6 @@ kbd {
 .hidden {
   display: none !important;
 }
-
-.highlight {
-  animation: highlight 1s ease;
-}
-
-@keyframes highlight {
-  0%, 100% { background-color: transparent; }
-  50% { background-color: var(--accent-subtle); }
-}
-
-/* ============================================
-   CUSTOM PRISM.JS SYNTAX HIGHLIGHTING
-   Add your custom syntax highlighting styles below
-   ============================================ */
-
-/* Example: Uncomment to customize syntax colors
-.d2h-code-line-ctn .token.keyword {
-  color: #ff79c6 !important;
-}
-*/
 
 /* ============================================
    SCROLLBAR STYLING
